@@ -1,0 +1,23 @@
+# Build artifacts
+dist/
+*.skill
+
+# Secrets / local env — NEVER commit these
+.env
+.env.*
+*.key
+*.pem
+secrets/
+**/local.conf
+
+# Editor / OS cruft
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Logs / scratch
+*.log
+tmp/
+.cache/

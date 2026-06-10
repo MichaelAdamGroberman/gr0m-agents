@@ -1,0 +1,42 @@
+name: ci
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      - name: Shellcheck scripts
+        run: shellcheck bin/*.sh bin/backends/*.sh scripts/*.sh
+
+      - name: Bash syntax check
+        run: bash -n bin/*.sh bin/backends/*.sh scripts/*.sh
+
+      - name: Configs source cleanly
+        run: |
+          bash -c 'source team.conf; source tiers.conf'
+          for p in projects/*/team.conf; do
+            bash -c "source team.conf; source tiers.conf; source $p"
+          done
+
+      - name: Agent briefs are non-empty
+        run: |
+          missing=0
+          for f in agents/*.md projects/*/agents/*.md; do
+            [ -s "$f" ] || { echo "empty brief: $f"; missing=1; }
+          done
+          exit $missing
+
+      - name: Skill builds
+        run: |
+          chmod +x scripts/build-skill.sh
+          scripts/build-skill.sh
+          test -f dist/agent-team-builder.skill
